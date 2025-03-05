@@ -1,6 +1,5 @@
 {
-  "name": "image-previewer",
-  "private": true,
+  "name": "nidea-image-previewer",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
