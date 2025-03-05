@@ -1,6 +1,6 @@
 {
   "name": "nidea-image-previewer-core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "scripts": {
     "lint": "eslint ."
@@ -16,7 +16,9 @@
     "url": "git+https://github.com/RaynierPM/image-previewer.git"
   },
   "keywords": [
-    "image-previewer"
+    "image-previewer",
+    "image",
+    "canvas"
   ],
   "author": "RaynierPM",
   "license": "MIT",
