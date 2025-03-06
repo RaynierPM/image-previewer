@@ -5,12 +5,9 @@
   "scripts": {
     "lint": "eslint ."
   },
-  "devDependencies": {
-    "@eslint/js": "^9.19.0",
-    "eslint": "^8.57.1"
-  },
-  "description": "A powerful yet lightweight JavaScript library for previewing images on a canvas. No frameworks, no fluff—just raw, pixel-moving, zoom-loving, crosshair-placing goodness.",
   "main": "./core/index.js",
+  "types": "dist/index.d.ts",
+  "description": "A powerful yet lightweight JavaScript library for previewing images on a canvas. No frameworks, no fluff—just raw, pixel-moving, zoom-loving, crosshair-placing goodness.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/RaynierPM/image-previewer.git"
@@ -25,5 +22,10 @@
   "bugs": {
     "url": "https://github.com/RaynierPM/image-previewer/issues"
   },
-  "homepage": "https://github.com/RaynierPM/image-previewer#readme"
+  "homepage": "https://github.com/RaynierPM/image-previewer#readme",
+  "devDependencies": {
+    "@eslint/js": "^9.19.0",
+    "eslint": "^8.57.1",
+    "typescript": "^5.8.2"
+  }
 }
