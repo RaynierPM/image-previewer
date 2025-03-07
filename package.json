@@ -1,9 +1,10 @@
 {
   "name": "nidea-image-previewer-core",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "scripts": {
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "publish:package": "rm -rf dist && mkdir dist && npm publish"
   },
   "main": "./core/index.js",
   "types": "dist/index.d.ts",

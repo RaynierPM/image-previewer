@@ -1,2 +1,7 @@
-# NPM 
+# DIRS
 node_modules/
+.vscode/
+
+# Settings Files
+.gitignore
+tsconfig.json
