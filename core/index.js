@@ -19,6 +19,46 @@ const DEFAULT_OPTIONS = {
 };
 
 export class ImagePreviewer {
+  /**
+   * @param {HTMLCanvasElement} canvas
+   * @param {CanvasOptions?} options
+   */
+  constructor(canvas, options) {
+    if (
+      !(canvas instanceof HTMLCanvasElement) ||
+      canvas.tagName.toLowerCase() != "canvas"
+    ) {
+      throw new Error("Canvas element required");
+    }
+
+    if (!options) {
+      this.#options = { ...DEFAULT_OPTIONS };
+    } else {
+      this.#options = { ...DEFAULT_OPTIONS, ...options };
+    }
+
+    if (!options.width || !options.height)
+      throw new Error("Width|height options required");
+
+    this.canvas = canvas;
+    const ctx = canvas.getContext("2d");
+    if (ctx instanceof CanvasRenderingContext2D) {
+      this.context = ctx;
+    }
+
+    const dimensions = {
+      width: options.width,
+      height: options.height,
+    };
+
+    this.#dimensions = dimensions;
+    this.#GRID_INCREMENT =
+      (this.dimensions.width + this.dimensions.height) * 0.1;
+
+    this.addDragEvent();
+    this.drawPreview();
+  }
+
   /** @type {HTMLCanvasElement} */
   canvas;
 
@@ -75,44 +115,6 @@ export class ImagePreviewer {
 
   /** @type {DragHandler | null} */
   #dragHandler = null;
-
-  /**
-   * @param {HTMLCanvasElement} canvas
-   * @param {CanvasOptions?} options
-   */
-  constructor(canvas, options) {
-    if (
-      !(canvas instanceof HTMLCanvasElement) ||
-      canvas.tagName.toLowerCase() != "canvas"
-    ) {
-      throw new Error("Canvas element required");
-    }
-
-    if (!options) {
-      this.#options = { ...DEFAULT_OPTIONS };
-    } else {
-      this.#options = { ...DEFAULT_OPTIONS, ...options };
-    }
-
-    this.canvas = canvas;
-    const ctx = canvas.getContext("2d");
-    if (ctx instanceof CanvasRenderingContext2D) {
-      this.context = ctx;
-    }
-
-    const dimensions = {
-      width: options.width ?? this.canvas.width,
-      height: options.height ?? this.canvas.height,
-    };
-
-    this.#dimensions = dimensions;
-    this.#GRID_INCREMENT =
-      (this.dimensions.width + this.dimensions.height) * 0.1;
-
-    this.#calcResponsiveness();
-    this.addDragEvent();
-    this.drawPreview();
-  }
 
   drawGrid() {
     const ctx = this.context;
@@ -288,7 +290,6 @@ export class ImagePreviewer {
   }
 
   #resizeHandler = () => {
-    this.#calcResponsiveness();
     this.drawPreview();
   };
 
