@@ -1,4 +1,4 @@
-# Image Previewer Core
+# nidea-iviewer
 
 A powerful yet lightweight JavaScript library for previewing images on a canvas. No frameworks, no fluff—just raw, pixel-moving, zoom-loving, crosshair-placing goodness.
 
@@ -41,10 +41,12 @@ new ImagePreviewer(canvas, options);
 
 #### Options
 
-> `withCrosshair?` : _Boolean_ # You are the boss, do u wanna show the crosshair (Default=true)
-> `crosshairRadius?` : _'auto' | number_ # We let you decide the crosshair size, how we told u, you are the boss (Default='auto')
-> `width*` : _number_ It's just the canvas's width (Required)
-> `height*` : _Boolean_ It's just the canvas's height (Required)
+- `withCrosshair?` : _Boolean_ # You are the boss, do u wanna show the crosshair (Default=true)
+- `crosshairRadius?` : _'auto' | number_ # We let you decide the crosshair size, how we told u, you are the boss (Default='auto')
+- `width*` : _number_ It's just the canvas's width (Required)
+- `height*` : _Boolean_ It's just the canvas's height (Required)
+
+> **Note** _The width and height are so importante cause help us with the aspect-ratio calculations and resposiveness._
 
 ### Public Methods
 

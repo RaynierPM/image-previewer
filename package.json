@@ -1,9 +1,8 @@
 {
-  "name": "nidea-image-previewer-core",
-  "version": "1.0.2",
+  "name": "nidea-iviewer",
+  "version": "1.0",
   "type": "module",
   "scripts": {
-    "lint": "eslint .",
     "publish:package": "rm -rf dist && mkdir dist && npm publish"
   },
   "main": "./core/index.js",
@@ -25,8 +24,6 @@
   },
   "homepage": "https://github.com/RaynierPM/image-previewer#readme",
   "devDependencies": {
-    "@eslint/js": "^9.19.0",
-    "eslint": "^8.57.1",
     "typescript": "^5.8.2"
   }
 }
