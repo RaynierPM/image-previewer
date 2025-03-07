@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "publish:package": "rm -rf dist && mkdir dist && npm publish"
+    "publish:package": "rm -rf dist && mkdir dist && tsc && npm publish"
   },
   "main": "./core/index.js",
   "types": "dist/index.d.ts",
