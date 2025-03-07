@@ -160,7 +160,7 @@ export class ImagePreviewer {
       height / 2,
       !crossHairRadius || crossHairRadius === "auto"
         ? (width + height) * 0.21
-        : crossHairRadius,
+        : crossHairRadius * this.#responsiveScale,
       0,
       2 * Math.PI,
       true
