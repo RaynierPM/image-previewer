@@ -8,6 +8,8 @@ const DEFAULT_COORD = 0;
  * @typedef CanvasOptions
  * @property {boolean} withCrosshair
  * @property {string | number} crossHairRadius
+ * @property {number} width
+ * @property {height} height
  */
 
 /** @type {CanvasOptions} */
@@ -26,6 +28,15 @@ export class ImagePreviewer {
   /** @type {{width: number; height: number}} */
   #dimensions;
 
+  get dimensions() {
+    const { width, height } = this.#dimensions;
+
+    return {
+      width: width * this.#responsiveScale,
+      height: height * this.#responsiveScale,
+    };
+  }
+
   /** @param {{width: number, height: number}} dimensions */
   set dimensions(dimensions) {
     if (
@@ -34,7 +45,7 @@ export class ImagePreviewer {
       typeof dimensions.height === "number"
     ) {
       this.#dimensions = { width: dimensions.width, height: dimensions.height };
-      this.refreshImage();
+      this.drawPreview();
     }
   }
 
@@ -54,7 +65,7 @@ export class ImagePreviewer {
   }
 
   /** @type {number} */
-  // #zoom = 1;
+  #responsiveScale = 1;
   /**
    * @type {ImagePointer | null}
    */
@@ -89,22 +100,23 @@ export class ImagePreviewer {
       this.context = ctx;
     }
 
-    const clientRectDOM = canvas.getClientRects()[0];
-
     const dimensions = {
-      width: clientRectDOM.width,
-      height: clientRectDOM.height,
+      width: options.width ?? this.canvas.width,
+      height: options.height ?? this.canvas.height,
     };
+
     this.#dimensions = dimensions;
     this.#GRID_INCREMENT =
-      (this.#dimensions.width + this.#dimensions.height) * 0.1;
+      (this.dimensions.width + this.dimensions.height) * 0.1;
 
+    this.#calcResponsiveness();
     this.addDragEvent();
+    this.drawPreview();
   }
 
   drawGrid() {
     const ctx = this.context;
-    const { height, width } = this.#dimensions;
+    const { height, width } = this.dimensions;
     ctx.beginPath();
     ctx.strokeStyle = "#888";
     ctx.lineWidth = 0.25;
@@ -126,8 +138,6 @@ export class ImagePreviewer {
       ctx.lineTo(width, row);
     }
     ctx.stroke();
-
-    this.drawCrosshair();
   }
 
   drawCrosshair() {
@@ -135,7 +145,7 @@ export class ImagePreviewer {
     if (!withCrosshair) return;
 
     const ctx = this.context;
-    const { width, height } = this.#dimensions;
+    const { width, height } = this.dimensions;
     ctx.beginPath();
     ctx.fillStyle = "#0007";
     ctx.moveTo(0, 0);
@@ -157,13 +167,7 @@ export class ImagePreviewer {
   }
 
   clearCanvas() {
-    this.context.clearRect(
-      0,
-      0,
-      this.#dimensions.width,
-      this.#dimensions.height
-    );
-    this.drawGrid();
+    this.context.clearRect(0, 0, this.dimensions.width, this.dimensions.height);
   }
 
   addImage(imgPath, withCrosshair = true) {
@@ -177,12 +181,15 @@ export class ImagePreviewer {
     img.src = imgPath;
   }
 
-  refreshImage() {
+  drawPreview() {
+    this.#calcResponsiveness();
+    this.clearCanvas();
+    this.drawGrid();
     if (this.#imageInfo) {
       this.#imageInfo = new ImagePointer(this.#imageInfo.img, this.#dimensions);
     }
-    this.clearCanvas();
     this.drawImage();
+    this.drawCrosshair();
   }
 
   drawImage() {
@@ -197,8 +204,8 @@ export class ImagePreviewer {
         this.#imageInfo.slicedHeight,
         DEFAULT_COORD,
         DEFAULT_COORD,
-        this.#dimensions.width,
-        this.#dimensions.height
+        this.dimensions.width,
+        this.dimensions.height
       );
     }
   }
@@ -269,11 +276,28 @@ export class ImagePreviewer {
     this.#onDragHandler(event);
   };
 
+  #calcResponsiveness() {
+    const { width: canvasWidth } = this.#dimensions;
+    const { width: canvasContainerWidth } =
+      this.canvas.parentElement.getClientRects()[0];
+
+    this.#responsiveScale = Math.min(1, canvasContainerWidth / canvasWidth);
+
+    this.canvas.width = this.dimensions.width;
+    this.canvas.height = this.dimensions.height;
+  }
+
+  #resizeHandler = () => {
+    this.#calcResponsiveness();
+    this.drawPreview();
+  };
+
   addDragEvent() {
     this.canvas.addEventListener("mousedown", this.#mouseDownClickHandler);
     this.canvas.addEventListener("mouseup", this.#mouseUpClickHandler);
     this.canvas.addEventListener("mouseover", this.#mouseOverHandler);
     this.canvas.addEventListener("mousemove", this.#mouseMoveHandler);
+    window.addEventListener("resize", this.#resizeHandler);
   }
 
   removeDragEvent() {
@@ -281,6 +305,7 @@ export class ImagePreviewer {
     this.canvas.removeEventListener("mouseup", this.#mouseUpClickHandler);
     this.canvas.removeEventListener("mouseover", this.#mouseOverHandler);
     this.canvas.removeEventListener("mousemove", this.#mouseMoveHandler);
+    window.removeEventListener("resize", this.#resizeHandler);
   }
 
   /**
