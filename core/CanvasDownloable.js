@@ -13,11 +13,11 @@ export class DownloableCanvas {
 
   /** @type {CanvasRenderingContext2D} */
   #ctx;
+
   /**
-   *
-   * @param {import('./CanvasImagePointer').ImagePointer} imageInfo
+   * @param {import('./CanvasImagePointer').ImagePointer} imageInfo Information about the image and position.
    */
-  constructor(imageInfo) {
+  constructor(imageInfo, maxSize) {
     this.#imageInfo = imageInfo;
 
     this.#canvas = document.createElement("canvas");
@@ -47,17 +47,20 @@ export class DownloableCanvas {
 
   async download() {
     let res;
-    const promise = new Promise((resolve) => {
+    let rej;
+    const promise = new Promise((resolve, reject) => {
       res = resolve;
+      rej = reject;
     });
 
     this.#canvas.toBlob(
       (blob) => {
+        if (!blob) rej?.();
         const { slicedWidth: width, slicedHeight: height } = this.#imageInfo;
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `React-Image-Previewer-${width}X${height}${EXTENSIONS[IMAGE_TYPE]}`;
+        a.download = `React-Image-Previewer-${width}X${height}`;
         a.click();
 
         URL.revokeObjectURL(url);
@@ -65,7 +68,7 @@ export class DownloableCanvas {
         res?.();
       },
       IMAGE_TYPE,
-      1
+      0.88
     );
 
     return promise;
@@ -77,14 +80,21 @@ export class DownloableCanvas {
    */
   async getBlob() {
     let res;
+    let rej;
     /** @type {Promise<Blob>} */
-    const promise = new Promise((resolve) => {
+    const promise = new Promise((resolve, reject) => {
       res = resolve;
+      rej = reject;
     });
 
-    this.#canvas.toBlob((blob) => {
-      res?.(blob);
-    });
+    this.#canvas.toBlob(
+      (blob) => {
+        if (!blob) rej?.();
+        res?.(blob);
+      },
+      IMAGE_TYPE,
+      0.88
+    );
 
     return promise;
   }
