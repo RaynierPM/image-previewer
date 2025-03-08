@@ -55,7 +55,7 @@ export class ImagePreviewer {
     this.#GRID_INCREMENT =
       (this.dimensions.width + this.dimensions.height) * 0.1;
 
-    this.addDragEvent();
+    this.#dragHandler = new DragHandler(this);
     this.drawPreview();
   }
 
@@ -111,10 +111,33 @@ export class ImagePreviewer {
    */
   #imageInfo = null;
 
+  get isThereImage() {
+    return Boolean(this.#imageInfo);
+  }
+
+  /** @type {boolean} */
   #isClicked = false;
+
+  get isClicked() {
+    return this.#isClicked;
+  }
+
+  set isClicked(clicked) {
+    if (typeof clicked === "boolean") this.#isClicked = clicked;
+  }
 
   /** @type {DragHandler | null} */
   #dragHandler = null;
+
+  get dragHandler() {
+    return this.#dragHandler;
+  }
+
+  set dragHandler(dragHandler) {
+    if (dragHandler instanceof DragHandler || dragHandler === null) {
+      this.#dragHandler = dragHandler;
+    }
+  }
 
   drawGrid() {
     const ctx = this.context;
@@ -187,15 +210,26 @@ export class ImagePreviewer {
     this.#calcResponsiveness();
     this.clearCanvas();
     this.drawGrid();
-    if (this.#imageInfo) {
+    if (this.isThereImage) {
       this.#imageInfo = new ImagePointer(this.#imageInfo.img, this.#dimensions);
     }
     this.drawImage();
     this.drawCrosshair();
   }
 
+  #calcResponsiveness() {
+    const { width: canvasWidth } = this.#dimensions;
+    const { width: canvasContainerWidth } =
+      this.canvas.parentElement.getClientRects()[0];
+
+    this.#responsiveScale = Math.min(1, canvasContainerWidth / canvasWidth);
+
+    this.canvas.width = this.dimensions.width;
+    this.canvas.height = this.dimensions.height;
+  }
+
   drawImage() {
-    if (this.#imageInfo) {
+    if (this.isThereImage) {
       const { img } = this.#imageInfo;
 
       this.context.drawImage(
@@ -222,114 +256,33 @@ export class ImagePreviewer {
 
   /**
    *
-   * @param {MouseEvent} event
-   */
-  #onDragHandler(event) {
-    if (this.#isClicked && this.#imageInfo.img) {
-      const { x, y } = this.#getCanvasClickPosition(event);
-      const { x: xPxQty, y: yPxQty } = this.#dragHandler.getDifference(x, y);
-      this.moveImage(xPxQty, yPxQty);
-    }
-  }
-
-  /** @param {MouseEvent} event */
-  #isClickedHandler(event) {
-    if (this.#imageInfo) {
-      const { x, y } = this.#getCanvasClickPosition(event);
-      this.#dragHandler = new DragHandler(x, y);
-      this.#isClicked = true;
-    }
-  }
-
-  #isUnclickedHandler() {
-    this.#dragHandler = null;
-    this.#isClicked = false;
-  }
-
-  /**
-   *
-   * @param {MouseEvent} event
-   * @returns
-   */
-  #getCanvasClickPosition(event) {
-    const { x: canvasX, y: canvasY } = this.canvas.getBoundingClientRect();
-    const positionX = event.clientX - canvasX;
-    const positionY = event.clientY - canvasY;
-    return { x: positionX, y: positionY };
-  }
-
-  /** @type {(event: MouseEvent) => void} */
-  #mouseDownClickHandler = (event) => {
-    this.#isClickedHandler(event);
-  };
-
-  /** @type {(event: MouseEvent) => void} */
-  #mouseUpClickHandler = (event) => {
-    this.#isUnclickedHandler(event);
-  };
-
-  /** @type {(event: MouseEvent) => void} */
-  #mouseOverHandler = (event) => {
-    this.#isUnclickedHandler(event);
-  };
-
-  /** @type {(event: MouseEvent) => void} */
-  #mouseMoveHandler = (event) => {
-    this.#onDragHandler(event);
-  };
-
-  #calcResponsiveness() {
-    const { width: canvasWidth } = this.#dimensions;
-    const { width: canvasContainerWidth } =
-      this.canvas.parentElement.getClientRects()[0];
-
-    this.#responsiveScale = Math.min(1, canvasContainerWidth / canvasWidth);
-
-    this.canvas.width = this.dimensions.width;
-    this.canvas.height = this.dimensions.height;
-  }
-
-  #resizeHandler = () => {
-    this.drawPreview();
-  };
-
-  addDragEvent() {
-    this.canvas.addEventListener("mousedown", this.#mouseDownClickHandler);
-    this.canvas.addEventListener("mouseup", this.#mouseUpClickHandler);
-    this.canvas.addEventListener("mouseover", this.#mouseOverHandler);
-    this.canvas.addEventListener("mousemove", this.#mouseMoveHandler);
-    window.addEventListener("resize", this.#resizeHandler);
-  }
-
-  removeDragEvent() {
-    this.canvas.removeEventListener("mousedown", this.#mouseDownClickHandler);
-    this.canvas.removeEventListener("mouseup", this.#mouseUpClickHandler);
-    this.canvas.removeEventListener("mouseover", this.#mouseOverHandler);
-    this.canvas.removeEventListener("mousemove", this.#mouseMoveHandler);
-    window.removeEventListener("resize", this.#resizeHandler);
-  }
-
-  /**
-   *
    * @param {number} xPxQty Horizontal pixels quantity
    * @param {number} yPxQty Horizontal pixels quantity
    */
   moveImage(xPxQty, yPxQty) {
     this.#imageInfo.move(xPxQty, yPxQty);
     this.drawImage();
-    +this.drawCrosshair();
+    this.drawCrosshair();
   }
 
   async downloadImage() {
-    if (this.#imageInfo) {
+    if (this.isThereImage) {
       return await new DownloableCanvas(this.#imageInfo).download();
     }
     return;
   }
 
   async getBlob() {
-    if (this.#imageInfo) {
+    if (this.isThereImage) {
       return await new DownloableCanvas(this.#imageInfo).getBlob();
     }
+  }
+
+  addDragEvent() {
+    this.#dragHandler.addDragEvent();
+  }
+
+  removeDragEvent() {
+    this.#dragHandler?.removeDragEvent();
   }
 }
