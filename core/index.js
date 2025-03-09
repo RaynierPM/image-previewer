@@ -9,7 +9,7 @@ const DEFAULT_COORD = 0;
  * @property {boolean} withCrosshair
  * @property {string | number} crossHairRadius
  * @property {number} width
- * @property {height} height
+ * @property {number} height
  */
 
 /** @type {CanvasOptions} */

@@ -1,6 +1,6 @@
 {
   "name": "nidea-iviewer",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "type": "module",
   "scripts": {
     "publish:package": "rm -rf dist && mkdir dist && tsc && npm publish"
